@@ -6,16 +6,23 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-SESSION = os.environ["session"]
-URL = "https://adventofcode.com/2022/day/{}/input"
 FILE_REGEX = re.compile(r"(\d+)\.py$")
 
 
+def data_file():
+    DATA_FILE = "aoc_data/day_{}.txt"
+    return DATA_FILE.format(
+        FILE_REGEX.search(inspect.stack()[1].filename).group(1)
+    )
+
+
 def today_url(call):
+    URL = "https://adventofcode.com/2022/day/{}/input"
     return URL.format(FILE_REGEX.search(call).group(1))
 
 
 def retrieve_data(day_url):
+    SESSION = os.environ["session"]
     response = requests.get(
         url=day_url,
         cookies={"session": SESSION},
