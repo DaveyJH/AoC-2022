@@ -3,14 +3,14 @@
 import re
 from aoc_data import check_for_data, data_file
 
+DAY = re.search(r"(\d+)\.py", __file__).group(1)
 check_for_data()
+print(f"Day {DAY}:\n")
 
-ELF_INVENTORY = re.compile(r"((?:\d+\n)+)")
-SINGLE_ITEM = re.compile(r"\d+")
-
-print("Day 1:\n")
 with open(data_file()) as f:
     content = f.read()
+    ELF_INVENTORY = re.compile(r"((?:\d+\n)+)")
+    SINGLE_ITEM = re.compile(r"\d+")
     all_elves = ELF_INVENTORY.findall(content)
     totals = [
         sum(
@@ -19,4 +19,5 @@ with open(data_file()) as f:
     ]
     print("  Part 1: ", max(totals))
     print("  Part 2: ", sum(sorted(totals, reverse=True)[0:3]))
+
 print()
