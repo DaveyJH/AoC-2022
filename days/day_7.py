@@ -20,8 +20,8 @@ class Directory:
     def __init__(self, name, parent=None):
         self.name = name
         self.parent = parent
-        self.files = {}
-        self.dirs = {}
+        self.files: dict[str, File] = {}
+        self.dirs: dict[str, Directory] = {}
 
     def calc_size(self):
         """Returns total size of all decendant files"""
@@ -47,7 +47,7 @@ with open(data_file()) as f:
     root = Directory("/")  # create root
     cd = root  # start at root
     part_1_size = 0
-    part_2_dirs = []
+    part_2_dirs: list[Directory] = []
     for line in content:
         if cd_reg := CD_CMD.match(line):
             if cd_reg.group(1) == "/":
@@ -69,5 +69,7 @@ with open(data_file()) as f:
     if (size := cd.calc_size()) <= 100000:  # needed to check final cd
         part_1_size += size
 
-print("  Part 1: ", part_1_size)
-print("  Part 2: ", min(d.calc_size() for d in part_2_dirs))
+    print("  Part 1: ", part_1_size)
+    print("  Part 2: ", min(d.calc_size() for d in part_2_dirs))
+
+print()
