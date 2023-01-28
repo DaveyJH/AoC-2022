@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 import re
-from aoc_data import check_for_data, data_file
+from aoc_data import check_for_data, data_file, get_day
 
-DAY = re.search(r"(\d+)\.py", __file__).group(1)
+DAY = get_day()
 check_for_data()
 print(f"Day {DAY}:\n")
 

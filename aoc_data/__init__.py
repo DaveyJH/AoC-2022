@@ -45,3 +45,9 @@ def check_for_data():
         f = open(file, "w")
         f.write(content)
         f.close()
+
+
+def get_day():
+    """Retrieves day from calling-file's name"""
+    file = str(inspect.stack()[1].filename)
+    return re.search(r"(\d+)\.py", file).group(1)
