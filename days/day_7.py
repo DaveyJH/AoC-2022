@@ -1,46 +1,63 @@
 #!/usr/bin/env python
 
 import re
-from aoc_data import check_for_data, data_file
+from aoc_data import check_for_data, data_file, get_day
 
-DAY = re.search(r"(\d+)\.py", __file__).group(1)
+DAY = get_day()
 check_for_data()
 print(f"Day {DAY}:\n")
 
+
+class File:
+
+    def __init__(self, name, size):
+        self.name = name
+        self.size = int(size)
+
+
+class Directory:
+
+    def __init__(self, name, parent=None):
+        self.name = name
+        self.parent = parent
+        self.files = {}
+        self.dirs = {}
+
+    def calc_size(self):
+        """Returns total size of all decendant files"""
+        return (
+            sum(f.size for f in self.files.values())
+            + sum(d.calc_size() for d in self.dirs.values())
+        )
+
+
+LS_CMD = re.compile(r"\$ ls")
+CD_CMD = re.compile(r"\$ cd (.+)")
+DIR_REGEX = re.compile(r"dir (.+)")
+FILE_REGEX = re.compile(r"(\d+) (.+)")
+
 with open(data_file()) as f:
     content = f.readlines()
-    file_sys = {
-        "/": {}
-    }
-    ls_command = re.compile(r"\$ ls")
-    cd_command = re.compile(r"\$ cd (.+)")
-    dir_regex = re.compile(r"dir (.+)")
-    file_regex = re.compile(r"(\d+) (.+)")
-    pd = []
-    cd = None
+    directories = {"/": Directory("/"), }  # create root
+    cd = directories["/"]  # start at root
     for line in content:
-        keys = [*pd]
-        cwd = file_sys
-        while keys:
-            cwd = cwd[keys.pop(0)]
-        if cd_r := cd_command.match(line):
-            if cd and cd_r.group(1) != "..": pd.append(cd)
-            cd = cd_r.group(1)
-            if cd == "..":
-                cd = pd.pop(-1)
-            pass
-        if ls_command.match(line):
-            pass
-        if dir_r := dir_regex.match(line):
-            cwd[cd][dir_r.group(1)] = {}
-            pass
-        if file_r := file_regex.match(line):
-            cwd[cd][file_r.group(2)] = int(file_r.group(1))
+        if cd_reg := CD_CMD.match(line):
+            if cd_reg.group(1) == "/":
+                cd = directories["/"]  # return to root
+            elif (name := cd_reg.group(1)) != "..":
+                directories[name] = cd.dirs[name]  # add directory to dict
+                cd = directories[name]  # cd to relevant directory
+            else:
+                cd = cd.parent  # `cd ..` to parent
+        elif dir_reg := DIR_REGEX.match(line):
+            dir = dir_reg.group(1)
+            cd.dirs[dir] = Directory(dir, cd)  # add directory as child of cd
+        elif file_reg := FILE_REGEX.match(line):
+            f_size, f_name = file_reg.group(1, 2)
+            cd.files[f_name] = File(f_name, f_size)  # add file w/size to cd
 
-    print(file_sys)
 
-    print("  Part 1: ",)
-
-    print("  Part 2: ",)
-
-print()
+print("  Part 1: ", sum([
+    d.calc_size() for d in directories.values()
+    if d.calc_size() <= 100000
+]))
