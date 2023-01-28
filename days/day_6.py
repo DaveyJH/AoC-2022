@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import re
 from aoc_data import check_for_data, data_file, get_day
 
 DAY = get_day()
