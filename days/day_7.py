@@ -36,20 +36,29 @@ CD_CMD = re.compile(r"\$ cd (.+)")
 DIR_REGEX = re.compile(r"dir (.+)")
 FILE_REGEX = re.compile(r"(\d+) (.+)")
 
+# part 2 (added after part 1...sort of cheating?)
+TOTAL_SPACE = 70000000
+SPACE_REQUIRED = 30000000
+SPACE_REMAINING = 25874010  # TOTAL_SPACE - root.calc_size()
+DIR_SIZE_REQUIRED = SPACE_REQUIRED - SPACE_REMAINING
+
 with open(data_file()) as f:
     content = f.readlines()
-    directories = {"/": Directory("/"), }  # create root
-    cd = directories["/"]  # start at root
+    root = Directory("/")  # create root
+    cd = root  # start at root
     part_1_size = 0
+    part_2_dirs = []
     for line in content:
         if cd_reg := CD_CMD.match(line):
             if cd_reg.group(1) == "/":
-                cd = directories["/"]  # return to root
+                cd = root  # return to root
             elif (name := cd_reg.group(1)) != "..":
                 cd = cd.dirs[name]  # cd to relevant directory
             else:
                 if (size := cd.calc_size()) <= 100000:
                     part_1_size += size
+                elif cd.calc_size() >= DIR_SIZE_REQUIRED:
+                    part_2_dirs.append(cd)
                 cd = cd.parent  # `cd ..` to parent
         elif dir_reg := DIR_REGEX.match(line):
             dir = dir_reg.group(1)
@@ -60,4 +69,5 @@ with open(data_file()) as f:
     if (size := cd.calc_size()) <= 100000:  # needed to check final cd
         part_1_size += size
 
-print(part_1_size)
+print("  Part 1: ", part_1_size)
+print("  Part 2: ", min(d.calc_size() for d in part_2_dirs))
